@@ -18,8 +18,7 @@
         "ext-pdo": "*",
         "ext-redis": "*",
         "ext-json": "*",
-        "ext-mbstring": "*",
-        "another-vendor/package": "1.*"
+        "ext-mbstring": "*"
     },
     "require-dev": {
     },
