@@ -1,10 +1,8 @@
 {
     "name": "php-sword/framework",
-    "keywords": [
-        "php",
-        "swoole",
-        "sword"
-    ],
+    "type": "library",
+    "keywords": ["php", "swoole", "easyswoole", "sword", "storage"],
+    "homepage" : "https://github.com/php-sword/framework",
     "license": "Apache-2.0",
     "authors": [
         {
@@ -15,17 +13,15 @@
     "description": "The phpSword Framework.",
     "require": {
         "php": "^7.2",
-        "ext-pdo": "*",
-        "ext-redis": "*",
         "ext-json": "*",
-        "ext-mbstring": "*"
+        "easyswoole/easyswoole": "^3.4"
     },
     "require-dev": {
     },
     "autoload": {
         "files": [],
         "psr-4": {
-            "sword\\": "src/sword/"
+            "Sword\\": "src/"
         }
     }
 }
