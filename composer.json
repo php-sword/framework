@@ -10,11 +10,10 @@
             "email": "kyour@vip.qq.com"
         }
     ],
-    "description": "The phpSword Framework.",
+    "description": "The PhpSword Framework.",
     "require": {
         "php": "^7.2",
-        "ext-json": "*",
-        "easyswoole/easyswoole": "^3.4"
+        "easyswoole/easyswoole": "~3.4.2"
     },
     "require-dev": {
     },

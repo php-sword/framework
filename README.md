@@ -12,9 +12,8 @@
 ## 安装
 
 ~~~
-composer require php-sword/storage
+composer require php-sword/framework
 ~~~
-
 
 ## 参与开发
 
