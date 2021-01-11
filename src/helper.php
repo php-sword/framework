@@ -1,18 +1,20 @@
 <?php declare(strict_types=1);
 /**
- * Sword 助手函数
- * 任何地方都可以通过助手函数名快速调用
+ * Sword框架初始化
  * @link     http://sword.kyour.cn
  * @document http://sword.kyour.cn/doc
  * @contact  kyour@vip.qq.com
  * @license  http://github.com/php-sword/sword/blob/master/LICENSE
- */
-
+*/
 use EasySwoole\RedisPool\RedisPool;
 
 define('SWORD_NULL', "SWORD_NULL_VALUE");
 define('SWORD_REDIS_EXISTS', "SWORD_REDIS_EXISTS_VALUE");
 
+/**
+ * Sword 助手函数
+ * 任何地方都可以通过助手函数名快速调用
+ */
 if (!function_exists('container')) {
     /**
      * 容器操作 全局变量
