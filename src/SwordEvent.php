@@ -9,16 +9,22 @@
 
 namespace Sword;
 
-use App\WebSocket\WebSocketParser;
 use EasySwoole\Command\CommandManager;
 
+use EasySwoole\Component\Di;
 use EasySwoole\EasySwoole\Command\CommandRunner;
 use EasySwoole\Command\Caller;
 use EasySwoole\EasySwoole\ServerManager;
 use EasySwoole\EasySwoole\Swoole\EventRegister;
+use EasySwoole\EasySwoole\SysConst;
+use EasySwoole\Http\Request;
+use EasySwoole\Http\Response;
 use EasySwoole\Redis\Config\RedisConfig;
+use EasySwoole\Session\FileSession;
 use EasySwoole\Socket\Dispatcher;
 use EasySwoole\Template\Render;
+use EasySwoole\Utility\Random;
+use Sword\Component\Session\Session;
 use Sword\Component\Template\ThinkTemplateRender;
 use Sword\Component\WebSocket\WebSocketJsonParser;
 
@@ -34,7 +40,7 @@ class SwordEvent
         require_once __DIR__."/helper.php";
 
         /**
-         * Easyswoole框架初始化
+         * Easyswoole框架入口文件
          * 版本 3.4
          */
 
@@ -146,6 +152,43 @@ class SwordEvent
         }
 
         /**
+         * **************** 启动Session **********************
+         */
+        $session_conf = config('session');
+        if(!empty($session_conf['enable'])){
+            if($session_conf['type'] == 'redis'){
+                $handler = new \Sword\Component\Session\RedisSessionHandler($session_conf);
+            }elseif($session_conf['type'] == 'file'){
+                $handler = new FileSession(EASYSWOOLE_TEMP_DIR . '/Session');
+            }
+            Session::getInstance($handler);
+
+            Di::getInstance()->set(SysConst::HTTP_GLOBAL_ON_REQUEST, function (Request $request, Response $response) {
+                //验证是否浏览器
+                if($request->getHeader('user-agent')){
+                    $session_conf = config('session');
+                    // 获取客户端 Cookie 中 sessionName 参数
+                    $cookie = $request->getCookieParams($session_conf['sessionName']);
+                    if (!$cookie) {
+                        $cookie = Random::character(32); // 生成 sessionId
+                        // 设置向客户端响应 Cookie 中 easy_session 参数
+                        $response->setCookie($session_conf['sessionName'], $cookie, time() + $session_conf['expire']);
+                    }
+                    // 存储 sessionId 方便调用，也可以通过其它方式存储
+                    $request->withAttribute('sessionId', $cookie);
+                    Session::getInstance()->create($cookie);
+                }
+            });
+            Di::getInstance()->set(SysConst::HTTP_GLOBAL_AFTER_REQUEST, function (Request $request, Response $response) {
+                //验证是否浏览器
+                if($request->getHeader('user-agent')) {
+                    //关闭session
+                    Session::getInstance()->close($request->getAttribute('sessionId'));
+                }
+            });
+        }
+
+        /**
          * **************** 模板引擎 **********************
          * -在全局的主服务中创建事件中，实例化该Render,并注入你的驱动配置
          */
@@ -158,7 +201,6 @@ class SwordEvent
             $render->getConfig()->setTempDir(EASYSWOOLE_TEMP_DIR);
             $render->attachServer(ServerManager::getInstance()->getSwooleServer());
         }
-
     }
 
 }

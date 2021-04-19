@@ -8,8 +8,8 @@
 */
 use EasySwoole\RedisPool\RedisPool;
 
-define('SWORD_NULL', "SWORD_NULL_VALUE");
-define('SWORD_REDIS_EXISTS', "SWORD_REDIS_EXISTS_VALUE");
+const SWORD_NULL = "SWORD_NULL_VALUE";
+const SWORD_REDIS_EXISTS = "SWORD_REDIS_EXISTS_VALUE";
 
 /**
  * Sword 助手函数
@@ -24,7 +24,7 @@ if (!function_exists('container')) {
      */
     function container($name = SWORD_NULL, $value = SWORD_NULL)
     {
-        $ins = App\Common\Container::getInstance();
+        $ins = Sword\Container::getInstance();
 
         // 无参数时获取所有
         if($name === SWORD_NULL or is_null($name)){
@@ -50,7 +50,7 @@ if (!function_exists('config')) {
      */
     function config(string $name = SWORD_NULL, $default = null)
     {
-        $ins = App\Common\Container::getInstance();
+        $ins = Sword\Container::getInstance();
         $config = $ins->get('sword_config')?:[];
 
         // 未初始化配置 -加载config文件夹的配置
