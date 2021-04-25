@@ -47,26 +47,27 @@ class SwordEvent
         defined('RUNNING_ROOT') or define('RUNNING_ROOT', ROOT_PATH);
         defined('EASYSWOOLE_ROOT') or define('EASYSWOOLE_ROOT', IN_PHAR ? \Phar::running() : ROOT_PATH);
 
-        if(file_exists(EASYSWOOLE_ROOT.'/bootstrap.php')){
-            require_once EASYSWOOLE_ROOT.'/bootstrap.php';
-        }
-
-        $caller = new Caller();
-        $caller->setScript(current($argv));
-        $caller->setCommand(next($argv));
-        $caller->setParams($argv);
-        reset($argv);
-
-        $ret = CommandRunner::getInstance()->run($caller);
-        if($ret && !empty($ret->getMsg())){
-            echo $ret->getMsg()."\n";
-        }
-
         // 时区设置
         date_default_timezone_set(config('app.timezone') ?: 'Asia/Shanghai');
 
         // 添加命令行
         CommandManager::getInstance()->addCommand(new \Sword\Command\Help());
+
+        //执行bootstrap文件
+        if(file_exists(EASYSWOOLE_ROOT.'/bootstrap.php')){
+            require_once EASYSWOOLE_ROOT.'/bootstrap.php';
+        }
+
+        // Easyswoole 命令行入口
+        $caller = new Caller();
+        $caller->setScript(current($argv));
+        $caller->setCommand(next($argv));
+        $caller->setParams($argv);
+        reset($argv);
+        $ret = CommandRunner::getInstance()->run($caller);
+        if($ret && !empty($ret->getMsg())){
+            echo $ret->getMsg()."\n";
+        }
 
     }
 

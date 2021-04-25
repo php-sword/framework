@@ -22,8 +22,7 @@ class Help implements CommandInterface
 
 //        $manager = CommandManager::getInstance();
 
-
-        return '帮助消息';
+        return 'Sword 框架使用帮助';
     }
 
     public function help(\EasySwoole\Command\AbstractInterface\CommandHelpInterface $commandHelp): \EasySwoole\Command\AbstractInterface\CommandHelpInterface
