@@ -1,0 +1,15 @@
+<?php
+/**
+ * This file is part of Sword.
+ * @link     http://sword.kyour.cn
+ * @document http://sword.kyour.cn/doc
+ * @contact  kyour@vip.qq.com
+ * @license  http://github.com/php-sword/sword/blob/master/LICENSE
+ */
+
+namespace Sword;
+
+class Sword
+{
+    const VERSION = '0.1.1';
+}

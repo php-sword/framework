@@ -43,7 +43,6 @@ class SwordEvent
          * Easyswoole框架入口文件
          * 版本 3.4
          */
-
         defined('IN_PHAR') or define('IN_PHAR', boolval(\Phar::running(false)));
         defined('RUNNING_ROOT') or define('RUNNING_ROOT', ROOT_PATH);
         defined('EASYSWOOLE_ROOT') or define('EASYSWOOLE_ROOT', IN_PHAR ? \Phar::running() : ROOT_PATH);
@@ -73,7 +72,6 @@ class SwordEvent
 
     public static function initialize()
     {
-
         // -------------------- DB --------------------
         //创建数据库连接池注册
         $db_conf = config('database');
@@ -113,10 +111,13 @@ class SwordEvent
         }
         // -------------------- REDIS END --------------------
 
+        ob_start();
     }
 
     public static function mainServerCreate(EventRegister $register)
     {
+        ob_end_clean();
+        self::logSword();
 
         $app_conf = config('app');
 
@@ -201,6 +202,26 @@ class SwordEvent
             $render->getConfig()->setTempDir(EASYSWOOLE_TEMP_DIR);
             $render->attachServer(ServerManager::getInstance()->getSwooleServer());
         }
+    }
+
+    public static function logSword()
+    {
+        $sword = Sword::VERSION;
+        $s_v = phpversion('swoole');
+        $p_v = phpversion();
+        $es_v = SysConst::EASYSWOOLE_VERSION;
+        $t_d = EASYSWOOLE_TEMP_DIR;
+        $l_d = EASYSWOOLE_LOG_DIR;
+        echo <<<LOGO
+   _____                      _  
+  / ____|                    | |  PHP      \e[34mv{$p_v}\e[0m
+ | (_____      _____  _ __ __| |  Swoole   \e[34mv{$s_v}\e[0m
+  \___ \ \ /\ / / _ \| '__/ _` |  Temp Dir \e[34m{$t_d}\e[0m
+  ____) \ V  V | (_) | | | (_| |  Log Dir  \e[34m{$l_d}\e[0m
+ |_____/ \_/\_/ \___/|_|  \__,_|  for \e[32mEasySwoole v{$es_v}\e[0m
+ ------------------------v{$sword}------------------------
+
+LOGO;
     }
 
 }
