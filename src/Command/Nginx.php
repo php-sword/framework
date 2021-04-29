@@ -1,8 +1,12 @@
-<?php
-
-
+<?php declare(strict_types=1);
+/**
+ * This file is part of Sword.
+ * @link     http://sword.kyour.cn
+ * @document http://sword.kyour.cn/doc
+ * @contact  kyour@vip.qq.com
+ * @license  http://github.com/php-sword/sword/blob/master/LICENSE
+ */
 namespace Sword\Command;
-
 
 use EasySwoole\Command\AbstractInterface\CommandInterface;
 use EasySwoole\Command\CommandManager;
@@ -11,12 +15,12 @@ class Nginx implements CommandInterface
 {
     public function commandName(): string
     {
-        return 'app';
+        return 'nginx';
     }
 
     public function desc(): string
     {
-        return '用户自定义';
+        return '快速创建nginx代理的配置文件';
     }
 
     public function exec(): string

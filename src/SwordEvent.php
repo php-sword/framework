@@ -6,10 +6,7 @@
  * @contact  kyour@vip.qq.com
  * @license  http://github.com/php-sword/sword/blob/master/LICENSE
  */
-
 namespace Sword;
-
-use EasySwoole\Command\CommandManager;
 
 use EasySwoole\Component\Di;
 use EasySwoole\EasySwoole\Command\CommandRunner;
@@ -51,7 +48,7 @@ class SwordEvent
         date_default_timezone_set(config('app.timezone') ?: 'Asia/Shanghai');
 
         // 添加命令行
-        CommandManager::getInstance()->addCommand(new \Sword\Command\Help());
+        \EasySwoole\Command\CommandManager::getInstance()->addCommand(new \Sword\Command\Help());
 
         //执行bootstrap文件
         if(file_exists(EASYSWOOLE_ROOT.'/bootstrap.php')){
@@ -121,6 +118,14 @@ class SwordEvent
         self::logSword();
 
         $app_conf = config('app');
+
+        /**
+         * **************** Crontab任务计划 **********************
+         */
+        $class = "\\App\\Crontab\\CrontabRegister";
+        if(class_exists($class)){
+            new $class();
+        }
 
         /**
          * **************** 热重载 **********************
