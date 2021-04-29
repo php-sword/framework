@@ -102,7 +102,9 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function read(string $session_id, ?float $timeout = null): ?array
     {
-        $data = unserialize($this->redis->get($session_id));
+        $data = $this->redis->get($session_id);
+        if($data === null) return null;
+        $data = unserialize($data);
         if(is_array($data)){
             return $data;
         }else{
