@@ -224,7 +224,7 @@ class SwordEvent
  | (_____      _____  _ __ __| |  Swoole   \e[34mv{$s_v}\e[0m
   \___ \ \ /\ / / _ \| '__/ _` |  Temp Dir \e[34m{$t_d}\e[0m
   ____) \ V  V | (_) | | | (_| |  Log Dir  \e[34m{$l_d}\e[0m
- |_____/ \_/\_/ \___/|_|  \__,_|  for \e[32mEasySwoole v{$es_v}\e[0m
+ |_____/ \_/\_/ \___/|_|  \__,_|  Based \e[32mEasySwoole v{$es_v}\e[0m
  ------------------------v{$sword}------------------------
 
 LOGO;
