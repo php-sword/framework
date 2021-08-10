@@ -24,6 +24,8 @@ use EasySwoole\Utility\Random;
 use Sword\Component\Session\Session;
 use Sword\Component\Template\ThinkTemplateRender;
 use Sword\Component\WebSocket\WebSocketJsonParser;
+use EasySwoole\FileWatcher\FileWatcher;
+use EasySwoole\FileWatcher\WatchRule;
 
 class SwordEvent
 {
@@ -48,7 +50,7 @@ class SwordEvent
         date_default_timezone_set(config('app.timezone') ?: 'Asia/Shanghai');
 
         // 添加命令行
-        \EasySwoole\Command\CommandManager::getInstance()->addCommand(new \Sword\Command\Help());
+        \EasySwoole\Command\CommandManager::getInstance()->addCommand(new \Sword\Command\Nginx());
 
         //执行bootstrap文件
         if(file_exists(EASYSWOOLE_ROOT.'/bootstrap.php')){
@@ -131,13 +133,14 @@ class SwordEvent
          * **************** 热重载 **********************
          */
         if(!empty($app_conf['hot_reload'])){
-            // 配置同上别忘了添加要检视的目录
-            $hotReloadOptions = new \EasySwoole\HotReload\HotReloadOptions;
-            $hotReload = new \EasySwoole\HotReload\HotReload($hotReloadOptions);
-            $hotReloadOptions->setMonitorFolder([EASYSWOOLE_ROOT . '/App']);
-
-            $server = ServerManager::getInstance()->getSwooleServer();
-            $hotReload->attachToServer($server);
+            $watcher = new FileWatcher();
+            $rule = new WatchRule(EASYSWOOLE_ROOT . "/App"); // 设置监控规则和监控目录
+            $watcher->addRule($rule);
+            $watcher->setOnChange(function () {
+                Log::get()->info('file change ,reload!!!');
+                ServerManager::getInstance()->getSwooleServer()->reload();
+            });
+            $watcher->attachServer(ServerManager::getInstance()->getSwooleServer());
         }
 
         /**

@@ -12,8 +12,8 @@
     ],
     "description": "The PhpSword Framework.",
     "require": {
-        "php": ">=7.2",
-        "easyswoole/easyswoole": "~3.4.2"
+        "php": ">=7.4",
+        "easyswoole/easyswoole": "~3.4.0"
     },
     "require-dev": {
     },
