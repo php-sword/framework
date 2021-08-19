@@ -1,7 +1,7 @@
 {
     "name": "php-sword/framework",
     "type": "library",
-    "keywords": ["php", "swoole", "easyswoole", "sword", "storage"],
+    "keywords": ["php", "swoole", "easyswoole", "sword"],
     "homepage" : "https://github.com/php-sword/framework",
     "license": "Apache-2.0",
     "authors": [

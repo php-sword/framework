@@ -11,6 +11,7 @@ namespace Sword;
 use EasySwoole\Component\Di;
 use EasySwoole\EasySwoole\Command\CommandRunner;
 use EasySwoole\Command\Caller;
+use EasySwoole\EasySwoole\Crontab\Crontab;
 use EasySwoole\EasySwoole\ServerManager;
 use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\EasySwoole\SysConst;
@@ -117,16 +118,44 @@ class SwordEvent
     public static function mainServerCreate(EventRegister $register)
     {
         ob_end_clean();
-        self::logSword();
+        self::logoSword();
 
         $app_conf = config('app');
 
         /**
-         * **************** Crontab任务计划 **********************
+         * **************** Crontab定时任务 **********************
          */
-        $class = "\\App\\Crontab\\CrontabRegister";
-        if(class_exists($class)){
-            new $class();
+        $path = EASYSWOOLE_ROOT .'/App/Crontab';
+        //取出配置目录全部文件
+        foreach(scandir($path) as $file){
+            //如果是php文件
+            if(preg_match('/.php/',$file)){
+                $name = basename($file,".php");
+                $class = "\\App\\Crontab\\{$name}";
+                if(class_exists($class) and $class::enable){
+                    Crontab::getInstance()->addTask($class);
+                }
+            }
+        }
+
+        /**
+         * **************** Process自定义进程 **********************
+         */
+        $path = EASYSWOOLE_ROOT .'/App/Process';
+        //取出配置目录全部文件
+        foreach(scandir($path) as $file){
+            //如果是php文件
+            if(preg_match('/.php/',$file)){
+                $name = basename($file,".php");
+                $class = "\\App\\Process\\{$name}";
+                if(class_exists($class) and $class::enable){
+                    $config = new \EasySwoole\Component\Process\Config([
+                        'processName' => $name, // 设置进程名称
+                    ]);
+                    $process = new $class($config);
+                    \EasySwoole\Component\Process\Manager::getInstance()->addProcess($process);
+                }
+            }
         }
 
         /**
@@ -213,7 +242,7 @@ class SwordEvent
         }
     }
 
-    public static function logSword()
+    public static function logoSword()
     {
         $sword = Sword::VERSION;
         $s_v = phpversion('swoole');
