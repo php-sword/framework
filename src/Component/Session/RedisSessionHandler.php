@@ -41,12 +41,12 @@ class RedisSessionHandler implements SessionHandlerInterface
 
     /**
      * SESSION打开
-     * @param   $savePath   string 保存路径
+     * @param string $sessionId
      * @param float|null $timeout
      * @return  boolean 是否成功
      * @throws \Throwable
      */
-    public function open($savePath, ?float $timeout = null): bool
+    public function open($sessionId, ?float $timeout = null): bool
     {
         return true;
     }
