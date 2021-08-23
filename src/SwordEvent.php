@@ -193,6 +193,7 @@ class SwordEvent
         /**
          * **************** 启动Session **********************
          */
+
         $session_conf = config('session');
         if(!empty($session_conf['enable'])){
             if($session_conf['type'] == 'redis'){
@@ -201,7 +202,7 @@ class SwordEvent
                 $handler = new FileSession(EASYSWOOLE_TEMP_DIR . '/Session');
             }
             Session::getInstance($handler);
-
+            /*
             Di::getInstance()->set(SysConst::HTTP_GLOBAL_ON_REQUEST, function (Request $request, Response $response) {
                 //验证是否浏览器
                 if($request->getHeader('user-agent')){
@@ -225,7 +226,9 @@ class SwordEvent
                     Session::getInstance()->close($request->getAttribute('sessionId'));
                 }
             });
+            */
         }
+
 
         /**
          * **************** 模板引擎 **********************

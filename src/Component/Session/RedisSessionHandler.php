@@ -17,8 +17,6 @@ use EasySwoole\Session\SessionHandlerInterface;
  */
 class RedisSessionHandler implements SessionHandlerInterface
 {
-    private $redis;
-    private $redisPool;
     private $expire = 86400 * 7; //7天
 
     /**
@@ -38,7 +36,6 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function close(string $sessionId, ?float $timeout = null): bool
     {
-        $this->redisPool->recycleObj($this->redis);
         return true;
     }
 
@@ -51,8 +48,6 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function open($savePath, ?float $timeout = null): bool
     {
-        $this->redisPool = RedisPool::getInstance()->getPool();
-        $this->redis= $this->redisPool->getObj();
         return true;
     }
 
@@ -64,7 +59,6 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function gc(int $expire, ?float $timeout = null): bool
     {
-        //空实现
         return true;
     }
 
@@ -79,7 +73,8 @@ class RedisSessionHandler implements SessionHandlerInterface
     {
         //Session 空数据拒绝写入
         if(!empty($data)){
-            $this->redis->set($sessionId, serialize($data), $this->expire);
+            $redisCluster = RedisPool::defer();
+            $redisCluster->set($sessionId, serialize($data), $this->expire);
         }
         return true;
     }
@@ -91,18 +86,21 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function destroy($sessionId): bool
     {
-        $this->redis->del($sessionId);
+        $redisCluster = RedisPool::defer();
+        $redisCluster->del($sessionId);
         return true;
     }
 
     /**
      * 读取SESSION信息并验证是否有效
-     * @param   $session_id string session的key值
+     * @param   $sessionId string session的key值
      * @return  mixed
      */
-    public function read(string $session_id, ?float $timeout = null): ?array
+    public function read(string $sessionId, ?float $timeout = null): ?array
     {
-        $data = $this->redis->get($session_id);
+        $redisCluster = RedisPool::defer();
+
+        $data = $redisCluster->get($sessionId);
         if($data === null) return null;
         $data = unserialize($data);
         if(is_array($data)){
