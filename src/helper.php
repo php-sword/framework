@@ -142,8 +142,8 @@ if (!function_exists('mb_substr_replace')) {
      * @param $length
      * @return string
      */
-    function mb_substr_replace($string, $replacement, $start, $length = null, $encoding = null): string
+    function mb_substr_replace($string, $replacement, $start, $length): string
     {
-        return mb_substr($string, 0, $start). $replacement. mb_substr($string, $start+$length);
+        return mb_substr($string, 0, $start). $replacement. mb_substr($string, $start+ $length);
     }
 }
