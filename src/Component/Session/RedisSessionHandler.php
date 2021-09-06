@@ -8,6 +8,7 @@
  */
 namespace Sword\Component\Session;
 
+use EasySwoole\Redis\Redis;
 use EasySwoole\RedisPool\RedisPool;
 use EasySwoole\Session\SessionHandlerInterface;
 
@@ -73,8 +74,10 @@ class RedisSessionHandler implements SessionHandlerInterface
     {
         //Session 空数据拒绝写入
         if(!empty($data)){
-            $redisCluster = RedisPool::defer();
-            $redisCluster->set($sessionId, serialize($data), $this->expire);
+            $expire = $this->expire;
+            RedisPool::invoke(function (Redis $redis) use($sessionId, $data, $expire) {
+                $redis->set($sessionId, serialize($data), $expire);
+            });
         }
         return true;
     }
@@ -86,8 +89,10 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function destroy($sessionId): bool
     {
-        $redisCluster = RedisPool::defer();
-        $redisCluster->del($sessionId);
+        RedisPool::invoke(function (Redis $redis) use($sessionId) {
+            $redis->del($sessionId);
+        });
+
         return true;
     }
 
@@ -98,9 +103,11 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function read(string $sessionId, ?float $timeout = null): ?array
     {
-        $redisCluster = RedisPool::defer();
+        $data = null;
+        RedisPool::invoke(function (Redis $redis) use($sessionId, &$data) {
+            $data = $redis->get($sessionId);
+        });
 
-        $data = $redisCluster->get($sessionId);
         if($data === null) return null;
         $data = unserialize($data);
         if(is_array($data)){
