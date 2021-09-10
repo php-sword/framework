@@ -66,25 +66,27 @@ if (!function_exists('config')) {
                     $config[strtolower(basename($file,".php"))] = $arr;
                 }
             }
+            $ins->set('sword_config', $config);
         }
-        $ins->set('sword_config', $config);
 
         // 无参数时获取所有
         if ($name === SWORD_NULL) {
             return $config;
         }
+        // 获取某一个配置文件
         if (false === strpos($name, '.')) {
             return $config[$name];
         }
 
-        $name    = explode('.', $name);
+        $name = explode('.', $name);
         $name[0] = strtolower($name[0]);
 
-        // 按.拆分成多维数组进行判断
+        // 按.拆分数组后判断数据是否存在
         foreach ($name as $val) {
             if (isset($config[$val])) {
                 $config = $config[$val];
             } else {
+                // 不存在，返回默认数据
                 return $default;
             }
         }
