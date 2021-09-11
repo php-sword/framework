@@ -127,14 +127,16 @@ class SwordEvent
          * **************** Crontab定时任务 **********************
          */
         $path = EASYSWOOLE_ROOT .'/App/Crontab';
-        //取出配置目录全部文件
-        foreach(scandir($path) as $file){
-            //如果是php文件
-            if(preg_match('/.php/',$file)){
-                $name = basename($file,".php");
-                $class = "\\App\\Crontab\\{$name}";
-                if(class_exists($class) and $class::enable){
-                    Crontab::getInstance()->addTask($class);
+        if(file_exists($path)){
+            //取出配置目录全部文件
+            foreach(scandir($path) as $file){
+                //如果是php文件
+                if(preg_match('/.php/',$file)){
+                    $name = basename($file,".php");
+                    $class = "\\App\\Crontab\\{$name}";
+                    if(class_exists($class) and $class::enable){
+                        Crontab::getInstance()->addTask($class);
+                    }
                 }
             }
         }
@@ -143,18 +145,20 @@ class SwordEvent
          * **************** Process自定义进程 **********************
          */
         $path = EASYSWOOLE_ROOT .'/App/Process';
-        //取出配置目录全部文件
-        foreach(scandir($path) as $file){
-            //如果是php文件
-            if(preg_match('/.php/',$file)){
-                $name = basename($file,".php");
-                $class = "\\App\\Process\\{$name}";
-                if(class_exists($class) and $class::enable){
-                    $config = new \EasySwoole\Component\Process\Config([
-                        'processName' => $name, // 设置进程名称
-                    ]);
-                    $process = new $class($config);
-                    \EasySwoole\Component\Process\Manager::getInstance()->addProcess($process);
+        if(file_exists($path)) {
+            //取出配置目录全部文件
+            foreach (scandir($path) as $file) {
+                //如果是php文件
+                if (preg_match('/.php/', $file)) {
+                    $name = basename($file, ".php");
+                    $class = "\\App\\Process\\{$name}";
+                    if (class_exists($class) and $class::enable) {
+                        $config = new \EasySwoole\Component\Process\Config([
+                            'processName' => $name, // 设置进程名称
+                        ]);
+                        $process = new $class($config);
+                        \EasySwoole\Component\Process\Manager::getInstance()->addProcess($process);
+                    }
                 }
             }
         }
