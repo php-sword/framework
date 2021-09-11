@@ -85,12 +85,13 @@ class SwordEvent
                 ->setHost($db_conf['host'])
                 ->setPort($db_conf['port'])
                 ->setCharset($db_conf['charset'])
+                ->setTimeout(15)
                 //连接池配置
                 ->setGetObjectTimeout(3.0) //设置获取连接池对象超时时间
                 ->setIntervalCheckTime(30 * 1000) //设置检测连接存活执行回收和创建的周期
                 ->setMaxIdleTime(15) //连接池对象最大闲置时间(秒)
-                ->setMaxObjectNum(50) //设置最大连接池存在连接对象数量
-                ->setMinObjectNum(10) //设置最小连接池存在连接对象数量
+                ->setMinObjectNum(5) //设置最小连接池存在连接对象数量
+                ->setMaxObjectNum(30) //设置最大连接池存在连接对象数量
                 ->setAutoPing(5); //设置自动ping客户端链接的间隔
 
             \EasySwoole\ORM\DbManager::getInstance()->addConnection(new \EasySwoole\ORM\Db\Connection($dbConfig));
@@ -126,16 +127,14 @@ class SwordEvent
          * **************** Crontab定时任务 **********************
          */
         $path = EASYSWOOLE_ROOT .'/App/Crontab';
-        if(file_exists($path)){
-            //取出配置目录全部文件
-            foreach(scandir($path) as $file){
-                //如果是php文件
-                if(preg_match('/.php/',$file)){
-                    $name = basename($file,".php");
-                    $class = "\\App\\Crontab\\{$name}";
-                    if(class_exists($class) and $class::enable){
-                        Crontab::getInstance()->addTask($class);
-                    }
+        //取出配置目录全部文件
+        foreach(scandir($path) as $file){
+            //如果是php文件
+            if(preg_match('/.php/',$file)){
+                $name = basename($file,".php");
+                $class = "\\App\\Crontab\\{$name}";
+                if(class_exists($class) and $class::enable){
+                    Crontab::getInstance()->addTask($class);
                 }
             }
         }
@@ -144,20 +143,18 @@ class SwordEvent
          * **************** Process自定义进程 **********************
          */
         $path = EASYSWOOLE_ROOT .'/App/Process';
-        if(file_exists($path)) {
-            //取出配置目录全部文件
-            foreach (scandir($path) as $file) {
-                //如果是php文件
-                if (preg_match('/.php/', $file)) {
-                    $name = basename($file, ".php");
-                    $class = "\\App\\Process\\{$name}";
-                    if (class_exists($class) and $class::enable) {
-                        $config = new \EasySwoole\Component\Process\Config([
-                            'processName' => $name, // 设置进程名称
-                        ]);
-                        $process = new $class($config);
-                        \EasySwoole\Component\Process\Manager::getInstance()->addProcess($process);
-                    }
+        //取出配置目录全部文件
+        foreach(scandir($path) as $file){
+            //如果是php文件
+            if(preg_match('/.php/',$file)){
+                $name = basename($file,".php");
+                $class = "\\App\\Process\\{$name}";
+                if(class_exists($class) and $class::enable){
+                    $config = new \EasySwoole\Component\Process\Config([
+                        'processName' => $name, // 设置进程名称
+                    ]);
+                    $process = new $class($config);
+                    \EasySwoole\Component\Process\Manager::getInstance()->addProcess($process);
                 }
             }
         }
