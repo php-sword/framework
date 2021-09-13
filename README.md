@@ -1,16 +1,29 @@
 # PHP-Sword
 
-> 基于EasySwoole的PHP常驻内存开发框架
+```
+   _____                      _  
+  / ____|                    | |  PHP      v7.4.21
+ | (_____      _____  _ __ __| |  Swoole   v4.7.1
+  \___ \ \ /\ / / _ \| '__/ _` |  Temp Dir /www/dev/Temp
+  ____) \ V  V | (_) | | | (_| |  Log Dir  /www/dev/Temp/Log
+ |_____/ \_/\_/ \___/|_|  \__,_|  Based EasySwoole v3.4.6
+ ------------------------v0.1.12------------------------
+```
+> 基于EasySwoole的PHP协程快速开发框架，让你更专注于业务代码的开发
 
 ## 主要特性
 
 * 采用`PHP7`强类型（严格模式）
-* 支持更多的`PSR`规范
 * 基于Swoole常驻内存
-* 协程TCP、UDP、WEB_SOCKET 服务端
+* 更快速的上手Swoole开发
+* 清晰的项目结构
+* 提供更多便捷的工具
 
 ## 安装
 
+> 请务必通过 [php-sword/sword](https://github.com/php-sword/sword) 构建项目
+
+### 单独安装
 ~~~
 composer require php-sword/framework
 ~~~
