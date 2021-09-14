@@ -85,13 +85,12 @@ class SwordEvent
                 ->setHost($db_conf['host'])
                 ->setPort($db_conf['port'])
                 ->setCharset($db_conf['charset'])
-                ->setTimeout(15)
                 //连接池配置
                 ->setGetObjectTimeout(3.0) //设置获取连接池对象超时时间
                 ->setIntervalCheckTime(30 * 1000) //设置检测连接存活执行回收和创建的周期
                 ->setMaxIdleTime(15) //连接池对象最大闲置时间(秒)
-                ->setMinObjectNum(5) //设置最小连接池存在连接对象数量
-                ->setMaxObjectNum(30) //设置最大连接池存在连接对象数量
+                ->setMaxObjectNum(50) //设置最大连接池存在连接对象数量
+                ->setMinObjectNum(10) //设置最小连接池存在连接对象数量
                 ->setAutoPing(5); //设置自动ping客户端链接的间隔
 
             \EasySwoole\ORM\DbManager::getInstance()->addConnection(new \EasySwoole\ORM\Db\Connection($dbConfig));
@@ -212,12 +211,12 @@ class SwordEvent
                 //验证是否浏览器
                 if($request->getHeader('user-agent')){
                     $session_conf = config('session');
-                    // 获取客户端 Cookie 中 sessionName 参数
-                    $cookie = $request->getCookieParams($session_conf['sessionName']);
+                    // 获取客户端 Cookie 中 sessionId
+                    $cookie = $request->getCookieParams($session_conf['session_name']);
                     if (!$cookie) {
                         $cookie = Random::character(32); // 生成 sessionId
                         // 设置向客户端响应 Cookie 中 easy_session 参数
-                        $response->setCookie($session_conf['sessionName'], $cookie, time() + $session_conf['expire']);
+                        $response->setCookie($session_conf['session_name'], $cookie, time() + $session_conf['expire']);
                     }
                     // 存储 sessionId 方便调用，也可以通过其它方式存储
                     $request->withAttribute('sessionId', $cookie);
@@ -257,7 +256,7 @@ class SwordEvent
         $t_d = EASYSWOOLE_TEMP_DIR;
         $l_d = EASYSWOOLE_LOG_DIR;
         echo <<<LOGO
-   _____                      _  
+   _____                      _
   / ____|                    | |  PHP      \e[34mv{$p_v}\e[0m
  | (_____      _____  _ __ __| |  Swoole   \e[34mv{$s_v}\e[0m
   \___ \ \ /\ / / _ \| '__/ _` |  Temp Dir \e[34m{$t_d}\e[0m
