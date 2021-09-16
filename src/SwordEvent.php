@@ -211,12 +211,20 @@ class SwordEvent
                 //验证是否浏览器
                 if($request->getHeader('user-agent')){
                     $session_conf = config('session');
-                    // 获取客户端 Cookie 中 sessionId
-                    $cookie = $request->getCookieParams($session_conf['session_name']);
+                    $sessName = $session_conf['session_name'];
+
+                    // 从Cookie中获取sessionId
+                    $cookie = $request->getCookieParams($sessName);
+
+                    // 从参数中获取sessionId
+                    if(!empty($session_conf['enable_param'])){
+                        $cookie = $request->getRequestParam($sessName);
+                    }
+
                     if (!$cookie) {
                         $cookie = Random::character(32); // 生成 sessionId
                         // 设置向客户端响应 Cookie 中 easy_session 参数
-                        $response->setCookie($session_conf['session_name'], $cookie, time() + $session_conf['expire']);
+                        $response->setCookie($sessName, $cookie, time() + $session_conf['expire']);
                     }
                     // 存储 sessionId 方便调用，也可以通过其它方式存储
                     $request->withAttribute('sessionId', $cookie);
