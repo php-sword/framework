@@ -215,10 +215,9 @@ class SwordEvent
 
                     // 从Cookie中获取sessionId
                     $cookie = $request->getCookieParams($sessName);
-
                     // 从参数中获取sessionId
                     if(!empty($session_conf['enable_param'])){
-                        $cookie = $request->getRequestParam($sessName);
+                        if($param = $request->getRequestParam($sessName)) $cookie = $param;
                     }
 
                     if (!$cookie) {
