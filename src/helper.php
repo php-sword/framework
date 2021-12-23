@@ -74,7 +74,7 @@ if (!function_exists('config')) {
             return $config;
         }
         // 获取某一个配置文件
-        if (false === strpos($name, '.')) {
+        if (!str_contains($name, '.')) {
             return $config[$name];
         }
 

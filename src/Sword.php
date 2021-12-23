@@ -10,5 +10,5 @@ namespace Sword;
 
 class Sword
 {
-    const VERSION = '0.1.16';
+    const VERSION = '0.1.17';
 }

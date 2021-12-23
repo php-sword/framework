@@ -22,9 +22,9 @@ class RedisSessionHandler implements SessionHandlerInterface
 
     /**
      * SessionRedisHandler constructor.
-     * @param $config
+     * @param array $config
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         isset($config['expire']) && $this->expire = $config['expire'];
     }
@@ -47,7 +47,7 @@ class RedisSessionHandler implements SessionHandlerInterface
      * @return  boolean 是否成功
      * @throws \Throwable
      */
-    public function open($sessionId, ?float $timeout = null): bool
+    public function open(string $sessionId, ?float $timeout = null): bool
     {
         return true;
     }
@@ -74,11 +74,9 @@ class RedisSessionHandler implements SessionHandlerInterface
     {
         $expire = $this->expire;
         RedisPool::invoke(function (Redis $redis) use($sessionId, $data, $expire) {
+            //若无数据写入，则不存储key
             if(!empty($data)){
                 $redis->set($sessionId, serialize($data), $expire);
-            }else{
-                //空数据则清除key
-                $redis->del($sessionId);
             }
         });
         return true;
@@ -86,10 +84,10 @@ class RedisSessionHandler implements SessionHandlerInterface
 
     /**
      * 删除Session信息
-     * @param   $sessionId string Session的key值
+     * @param   $sessionId string session的key值
      * @return  boolean
      */
-    public function destroy($sessionId): bool
+    public function destroy(string $sessionId): bool
     {
         RedisPool::invoke(function (Redis $redis) use($sessionId) {
             $redis->del($sessionId);
@@ -101,7 +99,8 @@ class RedisSessionHandler implements SessionHandlerInterface
     /**
      * 读取SESSION信息并验证是否有效
      * @param   $sessionId string session的key值
-     * @return  mixed
+     * @param float|null $timeout
+     * @return array|null
      */
     public function read(string $sessionId, ?float $timeout = null): ?array
     {
