@@ -73,10 +73,13 @@ class RedisSessionHandler implements SessionHandlerInterface
     public function write(string $sessionId, array $data, ?float $timeout = null): bool
     {
         $expire = $this->expire;
-        RedisPool::invoke(function (Redis $redis) use($sessionId, $data, $expire) {
+        RedisPool::invoke(function (Redis $redis) use($sessionId, $data, $expire) {+
             //若无数据写入，则不存储key
-            if(!empty($data)){
+            if($data){
                 $redis->set($sessionId, serialize($data), $expire);
+            }else{
+                //空数据则清除key
+                $redis->del($sessionId);
             }
         });
         return true;

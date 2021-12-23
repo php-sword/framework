@@ -228,7 +228,7 @@ class SwordEvent
                     }
                     // 存储 sessionId 方便调用，也可以通过其它方式存储
                     $request->withAttribute('sessionId', $cookie);
-                    Session::getInstance()->create($cookie);
+                    // Session::getInstance()->create($cookie);
                 }
             });
             Di::getInstance()->set(SysConst::HTTP_GLOBAL_AFTER_REQUEST, function (Request $request, Response $response) {
