@@ -11,7 +11,7 @@ namespace Sword;
 use EasySwoole\Component\Di;
 use EasySwoole\EasySwoole\Command\CommandRunner;
 use EasySwoole\Command\Caller;
-use EasySwoole\EasySwoole\Crontab\Crontab;
+use EasySwoole\Crontab\Crontab;
 use EasySwoole\EasySwoole\ServerManager;
 use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\EasySwoole\SysConst;
@@ -127,6 +127,8 @@ class SwordEvent
          */
         $path = EASYSWOOLE_ROOT .'/App/Crontab';
         if(file_exists($path)){
+            $crontab = new Crontab();
+
             //取出配置目录全部文件
             foreach(scandir($path) as $file){
                 //如果是php文件
@@ -134,10 +136,11 @@ class SwordEvent
                     $name = basename($file,".php");
                     $class = "\\App\\Crontab\\{$name}";
                     if(class_exists($class) and $class::enable){
-                        Crontab::getInstance()->addTask($class);
+                        $crontab->register(new $class());
                     }
                 }
             }
+            $crontab->attachToServer(ServerManager::getInstance()->getSwooleServer());
         }
 
         /**
