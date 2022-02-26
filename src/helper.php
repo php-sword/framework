@@ -11,6 +11,9 @@ use EasySwoole\RedisPool\RedisPool;
 const SWORD_NULL = "SWORD_NULL_VALUE";
 const SWORD_REDIS_EXISTS = "SWORD_REDIS_EXISTS_VALUE";
 
+//无实际作用，实际在启动文件中定义，此处仅用于IDE识别
+defined('ROOT_PATH') or define('ROOT_PATH', __DIR__);
+
 /**
  * Sword 助手函数
  * 任何地方都可以通过助手函数名快速调用
