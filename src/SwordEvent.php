@@ -127,7 +127,15 @@ class SwordEvent
          */
         $path = EASYSWOOLE_ROOT .'/App/Crontab';
         if(file_exists($path)){
-            $crontab = new Crontab();
+            // 配置定时任务
+            $crontabConfig = new \EasySwoole\Crontab\Config();
+            // 1.设置执行定时任务的 socket 服务的 socket 文件存放的位置
+            $crontabConfig->setTempDir(EASYSWOOLE_TEMP_DIR);
+            // 2.设置执行定时任务的 socket 服务的名称
+            $crontabConfig->setServerName('SwordCrontab');
+            // 3.设置用来执行定时任务的 worker 进程数
+            $crontabConfig->setWorkerNum(2);
+            $crontab = new Crontab($crontabConfig);
 
             //取出配置目录全部文件
             foreach(scandir($path) as $file){
