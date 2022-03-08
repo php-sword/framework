@@ -18,7 +18,7 @@ use EasySwoole\EasySwoole\SysConst;
 use EasySwoole\Http\Request;
 use EasySwoole\Http\Response;
 use EasySwoole\Redis\Config\RedisConfig;
-use EasySwoole\Session\FileSession;
+use EasySwoole\Session\FileSession as FileSessionHandler;
 use EasySwoole\Socket\Dispatcher;
 use EasySwoole\Template\Render;
 use EasySwoole\Utility\Random;
@@ -195,8 +195,15 @@ class SwordEvent
             $conf = new \EasySwoole\Socket\Config();
             // 设置 Dispatcher 为 WebSocket 模式
             $conf->setType(\EasySwoole\Socket\Config::WEB_SOCKET);
+            
+            //解析器类
+            if(!empty($app_conf['parser_class'])){
+                $parser = $app_conf['parser_class'];
+            }else{
+                $parser = WebSocketJsonParser::class;
+            }
             // 设置解析器对象
-            $conf->setParser(new WebSocketJsonParser());
+            $conf->setParser(new $parser);
             // 创建 Dispatcher 对象 并注入 config 对象
             $dispatch = new Dispatcher($conf);
             // 给server 注册相关事件 在 WebSocket 模式下  on message 事件必须注册 并且交给 Dispatcher 对象处理
@@ -208,14 +215,15 @@ class SwordEvent
         /**
          * **************** 启动Session **********************
          */
-
         $session_conf = config('session');
         if(!empty($session_conf['enable'])){
             //选择Session驱动
             if($session_conf['type'] == 'redis'){
                 $handler = new \Sword\Component\Session\RedisSessionHandler($session_conf);
             }elseif($session_conf['type'] == 'file'){
-                $handler = new FileSession(EASYSWOOLE_TEMP_DIR . '/Session');
+                $handler = new FileSessionHandler(EASYSWOOLE_TEMP_DIR . '/Session');
+            }else{
+                throw new \Exception('未正确配置[session.type].');
             }
             Session::getInstance($handler);
 
@@ -225,21 +233,28 @@ class SwordEvent
                     $session_conf = config('session');
                     $sessName = $session_conf['session_name'];
 
+                    $sessionId = null;
+                    // 从Header中获取sessionId
+                    if(!empty($session_conf['enable_header']) and $param = $request->getHeader(strtolower($sessName))){
+                        $sessionId = $param[0];
+                    }
+                    // 从请求参数中获取sessionId
+                    if(!$sessionId and !empty($session_conf['enable_param']) and $param = $request->getRequestParam($sessName)){
+                        $sessionId = $param;
+                    }
                     // 从Cookie中获取sessionId
-                    $cookie = $request->getCookieParams($sessName);
-                    // 从参数中获取sessionId
-                    if(!empty($session_conf['enable_param'])){
-                        if($param = $request->getRequestParam($sessName)) $cookie = $param;
+                    if(!$sessionId and $cookie = $request->getCookieParams($sessName)){
+                        $sessionId = $cookie;
                     }
-
-                    if (!$cookie) {
-                        $cookie = Random::character(32); // 生成 sessionId
-                        // 设置向客户端响应 Cookie 中 easy_session 参数
-                        $response->setCookie($sessName, $cookie, time() + $session_conf['expire']);
+                    // 没有上传sessionId，创建新的会话
+                    if(!$sessionId) {
+                        $sessionId = Random::character(32); // 生成sessionId
+                        // 设置向客户端响应的Cookie参数
+                        $response->setCookie($sessName, $sessionId, time() + $session_conf['expire']);
                     }
-                    // 存储 sessionId 方便调用，也可以通过其它方式存储
-                    $request->withAttribute('sessionId', $cookie);
-                    // Session::getInstance()->create($cookie);
+                    // 存储sessionId方便调用，也可以通过其它方式存储
+                    $request->withAttribute('sessionId', $sessionId);
+                    // Session::getInstance()->create($sessionId);
                 }
             });
             Di::getInstance()->set(SysConst::HTTP_GLOBAL_AFTER_REQUEST, function (Request $request, Response $response) {
@@ -274,9 +289,13 @@ class SwordEvent
         $es_v = SysConst::EASYSWOOLE_VERSION;
         $t_d = EASYSWOOLE_TEMP_DIR;
         $l_d = EASYSWOOLE_LOG_DIR;
+
+        $_port = (string) config('app.server_port');
+        $_port = str_pad('Port:'. $_port,15," ",STR_PAD_BOTH);
+
         echo <<<LOGO
    _____                      _
-  / ____|                    | |  PHP      \e[34mv{$p_v}\e[0m
+  / ____|  \e[33m{$_port}\e[0m   | |  PHP      \e[34mv{$p_v}\e[0m
  | (_____      _____  _ __ __| |  Swoole   \e[34mv{$s_v}\e[0m
   \___ \ \ /\ / / _ \| '__/ _` |  Temp Dir \e[34m{$t_d}\e[0m
   ____) \ V  V | (_) | | | (_| |  Log Dir  \e[34m{$l_d}\e[0m
