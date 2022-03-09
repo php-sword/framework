@@ -33,15 +33,20 @@ class WebSocketJsonParser implements ParserInterface
      */
     public function decode($raw, $client) : ? Caller
     {
+        //解析错误回调方法
+        $exception = '\App\WebSocket\EventListener::onMessageException';
+
         // 解析 客户端原始消息
         $data = json_decode($raw, true);
         if (!is_array($data)) {
-            echo "decode message error! \n";
+            $e = new \Exception('The body is not in JSON format!', 1);
+            $exception($e, $raw);
             return null;
         }
 
         if(!isset($data['cmd'])){
-            echo "cmd parameter does not exist. \n";
+            $e = new \Exception('Parameter "cmd" does not exist!', 2);
+            $exception($e, $raw);
             return null;
         }
         $cmd = explode('.', $data['cmd']);
@@ -64,7 +69,8 @@ class WebSocketJsonParser implements ParserInterface
         // $class = '\\App\\WebSocket\\'. ucfirst($cmd[0] ?? 'Index');
 
         if(!class_exists($class)){
-            echo "cmd class $class does not exist. \n";
+            $e = new \Exception("Controller class {$class} does not exist!", 3);
+            $exception($e, $raw);
             return null;
         }
         $caller->setControllerClass($class);
