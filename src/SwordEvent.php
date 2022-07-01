@@ -11,7 +11,6 @@ namespace Sword;
 use EasySwoole\Component\Di;
 use EasySwoole\EasySwoole\Command\CommandRunner;
 use EasySwoole\Command\Caller;
-use EasySwoole\Crontab\Crontab;
 use EasySwoole\EasySwoole\ServerManager;
 use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\EasySwoole\SysConst;
@@ -135,7 +134,7 @@ class SwordEvent
             $crontabConfig->setServerName('SwordCrontab');
             // 3.设置用来执行定时任务的 worker 进程数
             $crontabConfig->setWorkerNum(2);
-            $crontab = new Crontab($crontabConfig);
+            $crontab = \EasySwoole\EasySwoole\Crontab\Crontab::getInstance($crontabConfig);
 
             //取出配置目录全部文件
             foreach(scandir($path) as $file){
@@ -148,7 +147,6 @@ class SwordEvent
                     }
                 }
             }
-            $crontab->attachToServer(ServerManager::getInstance()->getSwooleServer());
         }
 
         /**
