@@ -249,6 +249,7 @@ class SwordEvent
                         $sessionId = Random::character(32); // 生成sessionId
                         // 设置向客户端响应的Cookie参数
                         $response->setCookie($sessName, $sessionId, time() + $session_conf['expire']);
+                        $request->withAttribute('setCookie', $sessName);
                     }
                     // 存储sessionId方便调用，也可以通过其它方式存储
                     $request->withAttribute('sessionId', $sessionId);
