@@ -241,14 +241,16 @@ class SwordEvent
                         $sessionId = $param;
                     }
                     // 从Cookie中获取sessionId
-                    if(!$sessionId and $cookie = $request->getCookieParams($sessName)){
+                    if(!$sessionId and $session_conf['set_cookie'] and $cookie = $request->getCookieParams($sessName)){
                         $sessionId = $cookie;
                     }
                     // 没有上传sessionId，创建新的会话
                     if(!$sessionId) {
                         $sessionId = Random::character(32); // 生成sessionId
-                        // 设置向客户端响应的Cookie参数
-                        $response->setCookie($sessName, $sessionId, time() + $session_conf['expire']);
+                        if($session_conf['set_cookie']){
+                            // 设置向客户端响应的Cookie参数
+                            $response->setCookie($sessName, $sessionId, time() + $session_conf['expire']);
+                        }
                         $request->withAttribute('setSession', $sessName);
                     }
                     // 存储sessionId方便调用，也可以通过其它方式存储
